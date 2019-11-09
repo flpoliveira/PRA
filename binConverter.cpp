@@ -5,9 +5,9 @@ using namespace std;
 typedef struct{
   int id;
   int anoNascimento;
-  string sexo;
-  string etnia;
-  string nome;
+  char sexo[6];
+  char etnia[100];
+  char nome[100];
   int contador;
   int rank;
 } Registro;
@@ -41,9 +41,9 @@ int main()
 			rank = stoi(value);
             aux.id = id;
             aux.anoNascimento = anoNascimento;
-            aux.sexo = sexo;
-            aux.etnia = etnia;
-            aux.nome = nome;
+            strcpy(aux.sexo, sexo.c_str());
+            strcpy(aux.etnia, etnia.c_str());
+            strcpy(aux.nome, nome.c_str()); 
             aux.contador = contador;
             aux.rank = rank;
             registros.push_back(aux);
@@ -54,7 +54,7 @@ int main()
     arq = fopen ("Popular_Baby_Names_Shuffle.bin","ab");
     for(auto c : registros)
     {
-        cout << c.id << " - " << c.anoNascimento << " - " << c.sexo << " - " << c.etnia << " - " << c.nome << " - " << c.contador << " - " << c.rank << endl;
+        //cout << c.id << " - " << c.anoNascimento << " - " << c.sexo << " - " << c.etnia << " - " << c.nome << " - " << c.contador << " - " << c.rank << endl;
         if(fwrite(&c, sizeof(Registro),1,arq) !=1)
             cout << "Erro ao escrever o arquivo!!" << endl;
     }

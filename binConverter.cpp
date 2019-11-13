@@ -36,36 +36,15 @@ int main(){
         cab.topo=-1;
         fwrite(&cab, sizeof(struct cabecalho),1,arq);
         FILE * file = fopen("Popular_Baby_Names.csv", "r");
-        //ifstream file ( "Popular_Baby_Names_Shufle.csv" ); // declare file stream: http://www.cplusplus.com/reference/iostream/ifstream/
-        //Tive que apagar a primeira linha do arquivo
         struct registro aux;
         int i=0;
         while (i<10040)
         {
             fscanf(file, "%d,%d,%[^,],%[^,],%[^,],%d,%d", &aux.id, &aux.anoNascimento, aux.sexo, aux.etnia, aux.nome, &aux.contador, &aux.rank);
-            //string sexo, etnia, nome;
-            //string value;
-
-
-                // getline ( file, value , ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // if(strcmp (value.c_str(),"") == 0) break;
-                // aux.id = stoi(value);
-                // getline ( file, value , ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // aux.anoNascimento = stoi(value);
-                // getline ( file, sexo , ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // getline ( file, etnia , ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // getline ( file, nome , ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // getline ( file, value , ',' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // aux.contador = stoi(value);
-                // getline ( file, value , '\n' ); // read a string until next comma: http://www.cplusplus.com/reference/string/getline/
-                // aux.rank = stoi(value);
-                // strcpy(aux.sexo, sexo.c_str());
-                // strcpy(aux.etnia, etnia.c_str());
-                // strcpy(aux.nome, nome.c_str());
-                fwrite(&aux, sizeof(struct registro), 1, arq);
-                //cout << id << " - " << anoNascimento << " - " << sexo << " - " << etnia << " - " << nome << " - " << contador << " - " << rank << endl;
-                i++;
+            fwrite(&aux, sizeof(struct registro), 1, arq);
+            i++;
         }
+        rrn+=i;
     }
     fclose(arq);
 
@@ -77,56 +56,54 @@ int main(){
         printf("(5) - Limpeza do Arquivo\n");
         printf("(0) - Sair\n");
         scanf("%d", &opcao);
-        /*if(opcao == 1){
-            printf(">> Digite 0 em qualquer passo para sair\n");
-            //fseek(arq, sizeof(struct cabecalho), SEEK_SET);
-                while(1){
-                    arq = fopen ("arquivo","rb");
-                    fread(&cab, sizeof(struct cabecalho), 1, arq);
-                    fclose(arq);
-                    struct registro r;
-                    int id;
-                    int anoNascimento;
-                    char sexo[6];
-                    char etnia[100];
-                    char nome[100];
-                    int contador;
-                    int rank;
-                    printf("> Digite o nome:\n");
-                    scanf("%s", r.nome);
-                    if(strcmp(r.nome, "0") == 0) break;
-                    printf("> Digite o Ano de Nascimento:\n");
-                    scanf("%d", r.anoNascimento);
-                    if(strcmp(r.anoNascimento, "0") == 0) break;
-                    printf("> Digite o sexo:\n");
-                    scanf("%s", r.sexo);
-                    if(strcmp(r.sexo, "0") == 0) break;
-                    printf("> Digite a valor do produto:\n");
-                    scanf("%lf", &r.valor);
-                    if(r.valor == 0) break;
-                    if(cab.topo == -1){
-                        arq = fopen ("arquivo","ab");
-                        if(fwrite(&r, sizeof(struct registro), 1,arq) !=1)
-                            printf("!! Erro ao escrever o arquivo\n");
-                        else{
-                            printf(">> Registro adicionado RRN [%d] \n",rrn);
-                            rrn++;
-                        }
-                        fclose(arq);
-                    }else{
+        if(opcao == 1){
+            arq = fopen ("arquivo","rb");
+            fread(&cab, sizeof(struct cabecalho), 1, arq);
+            fclose(arq);
+            struct registro r;
+            int l;
+            printf("> Digite o id:\n");
+            scanf("%d", &r.id);
+            printf("> Digite o Ano de Nascimento:\n");
+            scanf("%d", &r.anoNascimento);
+            printf("> Sexo:\n");
+            printf("\t1 - FEMALE\n");
+            printf("\t2 - MALE\n");
+            scanf("%d", &l);
+            if(l == 1)
+                strcpy(r.sexo, "FEMALE");
+            else
+                strcpy(r.sexo, "MALE");
+            printf("> Digite a etnia:\n");
+            scanf("%s", r.etnia);
+            printf("> Digite o nome:\n");
+            scanf("%s", r.nome);
+            printf("Contador:\n");
+            scanf("%d", &r.contador);
+            printf("Rank:\n");
+            scanf("%d", &r.rank);
+            if(cab.topo == -1){
+                arq = fopen ("arquivo","ab");
+                if(fwrite(&r, sizeof(struct registro), 1,arq) !=1)
+                    printf("!! Erro ao escrever o arquivo\n");
+                else{
+                    printf(">> Registro adicionado RRN [%d] \n",rrn);
+                    rrn++;
+                }
+                fclose(arq);
+            }else{
 
-                        arq = fopen ("arquivo","rb+");
-                        fseek(arq, sizeof(struct cabecalho) + sizeof(struct registro) * cab.topo, SEEK_SET);
-                        fread(&auxRemover, sizeof(struct removido),1 ,arq);
-                        fseek(arq, (sizeof(struct cabecalho) + sizeof(struct registro) * cab.topo), SEEK_SET);
-                        fwrite(&r, sizeof(struct registro), 1,arq);
-                        cab.topo = auxRemover.proximoPilha;
-                        rewind(arq);
-                        fwrite(&cab, sizeof(struct cabecalho),1,arq);
-                        fclose(arq);
-                    }
+                arq = fopen ("arquivo","rb+");
+                fseek(arq, sizeof(struct cabecalho) + sizeof(struct registro) * cab.topo, SEEK_SET);
+                fread(&auxRemover, sizeof(struct removido),1 ,arq);
+                fseek(arq, (sizeof(struct cabecalho) + sizeof(struct registro) * cab.topo), SEEK_SET);
+                fwrite(&r, sizeof(struct registro), 1,arq);
+                cab.topo = auxRemover.proximoPilha;
+                rewind(arq);
+                fwrite(&cab, sizeof(struct cabecalho),1,arq);
+                fclose(arq);
             }
-        }else */if(opcao == 2){
+        }else if(opcao == 2){
             arq = fopen ("arquivo","rb");
             if(!arq){
                 printf("!! Erro ao abrir o arquivo\n");
@@ -137,10 +114,7 @@ int main(){
             fseek(arq, sizeof(struct cabecalho), SEEK_SET);
             while(fread(&auxRemover, sizeof(struct removido), 1, arq)){
                 if(auxRemover.caracter != '*'){
-
                     id++;
-
-
                     fseek(arq, (sizeof(struct cabecalho) + sizeof(struct registro) * countItens), SEEK_SET);
                     fread(&r, sizeof(struct registro), 1, arq);
                     printf("------RRN - %d------\n", id);
@@ -148,7 +122,7 @@ int main(){
                     printf("Ano de Nascimento: %d\n", r.anoNascimento);
                     printf("Sexo: %s\n", r.sexo);
                     printf("Etnia: %s\n", r.etnia);
-                    printf("Nome %s\n", r.nome);
+                    printf("Nome: %s\n", r.nome);
                     printf("Contador: %d\n", r.contador);
                     printf("Rank do Ano: %d\n", r.rank);
                 //    cout<<r.id<<","<<r.anoNascimento<<","<<r.sexo<<","<<r.etnia<<","<<r.nome<<","<<r.contador<<","<<r.rank<<endl;

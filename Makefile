@@ -3,10 +3,9 @@ all: compile
 
 
 compile:
-	g++ binConverter.cpp -o a
+	rm arquivo.dat indice_id.dat
+	g++ main.cpp header.cpp -o a
 	./a
 
 clean:
-	rm arquivo
-	g++ binConverter.cpp -o a
-	./a
+	rm arquivo.dat indice_id.dat

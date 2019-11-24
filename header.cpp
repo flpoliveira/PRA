@@ -22,23 +22,20 @@ void arquivos::gerarBinario(int tamanho)
 		return;
 	}
 	FILE * file = fopen("Popular_Baby_Names.csv", "r");
-    registro aux;
-    registro* aux2 = new registro();
+    registro* aux = new registro();
     int i=0;
     while (i<tamanho)
     {
-        fscanf(file, "%d,%d,%[^,],%[^,],%[^,],%d,%d", &aux.id, &aux.anoNascimento, aux2->sexo, aux2->etnia, aux2->nome, &aux.contador, &aux.rank);
-		aux2->id = aux.id;
-		aux2->anoNascimento = aux.anoNascimento;
-		//aux2->sexo = aux.sexo;
-		//aux2->etnia = aux.etnia;
-		//aux2->nome = aux.nome;
-		aux2->contador = aux.contador;
-		aux2->rank = aux.rank;
-		cout << "aux2->id: " << aux2->id << ", aux2->anoNascimento: " << aux2->anoNascimento << ", aux2->sexo: " << aux2->sexo;
-		cout << ", aux2->etnia: " << aux2->etnia << ", aux2->nome: " << aux2->nome << ", aux2->contador: " << aux2->contador;
-		cout << ", aux2->rank: " << aux2->rank << endl;
-		arquivo.write((char*)aux2, sizeof(registro));
+        fscanf(file, "%d,%d,%[^,],%[^,],%[^,],%d,%d", &aux->id, &aux->anoNascimento, aux->sexo, aux->etnia, aux->nome, &aux->contador, &aux->rank);
+		 
+        if(DEBUG)
+        {
+            cout << "aux->id: " << aux->id << ", aux->anoNascimento: " << aux->anoNascimento << ", aux->sexo: " << aux->sexo;
+            cout << ", aux->etnia: " << aux->etnia << ", aux->nome: " << aux->nome << ", aux->contador: " << aux->contador;
+            cout << ", aux->rank: " << aux->rank << endl;
+        }
+        
+		arquivo.write((char*)aux, sizeof(registro));
         i++;
     }
     fclose(file);
@@ -50,14 +47,14 @@ void arquivos::gerarBinarioIndiceId(int tamanho)
 	streampos rrn;
 	fstream arquivo;
 	arquivo.open("arquivo.dat", ios::in | ios::binary);
-	if(arquivo.fail())
+	if(arquivo.fail() && DEBUG)
 	{
 		cout << "Erro ao abrir o arquivo binario" << endl;
 		return;
 	}
 	fstream indice;
 	indice.open("indice_id.dat", ios::out | ios::app | ios::binary);
-	if(indice.fail())
+	if(indice.fail() && DEBUG)
 	{
 		cout << "Erro ao abrir o arquivo de indice id";
 		return;
@@ -69,21 +66,50 @@ void arquivos::gerarBinarioIndiceId(int tamanho)
 	{
 		rrn = arquivo.tellg();
 		arquivo.read((char*)reg, sizeof(registro));
-		cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
-		cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
-		cout << ", reg->rank: " << reg->rank << endl;
+        if(DEBUG)
+        {
+            cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
+            cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
+            cout << ", reg->rank: " << reg->rank << endl;
+        }
+		
 		indice_id->id = reg->id;
 		indice_id->rrn = rrn;
-		cout << "id -> " << indice_id->id << " , rrn -> " << indice_id->rrn << endl;
+
+        if(DEBUG)
+		  cout << "id -> " << indice_id->id << " , rrn -> " << indice_id->rrn << endl;
+
 		indice.write((char*)indice_id, sizeof(id));
 		arquivo.seekg(sizeof(registro)*(i+1));
 	}
 	arquivo.close();
 	indice.close();
 }
+
+void arquivos::printarArquivoBinario(int rrn)
+{
+    registro * reg = new registro();
+    fstream arquivo;
+    arquivo.open("arquivo.dat", ios::in | ios::binary);
+    if(arquivo.fail() && DEBUG)
+    {
+        cout << "Falha ao abrir o arquivo durante  a execucao do print" << endl;
+        return;
+    }
+    arquivo.seekg(rrn);
+    arquivo.read((char *)reg, sizeof(registro));
+    cout << "\tID: " << reg->id << endl;
+    cout << "\tNome: " << reg->nome << endl;
+    cout << "\tAno de Nascimento: " << reg->anoNascimento << endl;
+    cout << "\tSexo: " << reg->sexo << endl;
+    cout << "\tEtnia: " << reg->etnia << endl;
+    cout << "\tContador: " << reg->contador << endl;
+    cout << "\tRank: " << reg->rank << endl;
+    arquivo.close();
+}
 /*
 ===================================
-ARVORE B
+ARVORE B na Memoria Principal
 ==================================
 * Construtores das classes da arvore B
 * Busca e percorrer a arvore B de forma transversal
@@ -130,7 +156,7 @@ void BTreeNode::traverse()
 }
 
 // Function to search key k in subtree rooted with this node
-BTreeNode *BTreeNode::search(int k)
+int BTreeNode::search(int k)
 {
     // Find the first key greater than or equal to k
     int i = 0;
@@ -139,11 +165,11 @@ BTreeNode *BTreeNode::search(int k)
 
     // If the found key is equal to k, return this node
     if (keys[i].INDICE == k)
-        return this;
+        return keys[i].POSICAO;
 
     // If key is not found here and this is a leaf node
     if (leaf == true)
-        return NULL;
+        return -1;
 
     // Go to the appropriate child
     return C[i]->search(k);
@@ -290,3 +316,5 @@ void BTreeNode::splitChild(int i, BTreeNode *y)
     // Increment count of keys in this node
     n = n + 1;
 }
+
+

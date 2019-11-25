@@ -95,6 +95,7 @@ int main()
 		{
 			arquivo.gerarBinarioIndiceId();
 			arquivo.gerarBinarioIndiceAnoRank();
+			regs.clear();
 
 			fstream arq;
 			arq.open("arquivo.dat", ios::in | ios::binary);
@@ -144,7 +145,7 @@ int main()
 
 				if(resultado != -1)
 				{
-					cout << "Encontrado na TreeB" << endl;
+					cout << "Encontrado na TreeB , RRN: "<< resultado << endl;
 					arquivo.printarArquivoBinario(resultado);
 				}
 				else

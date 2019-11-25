@@ -138,21 +138,24 @@ void arquivos::gerarBinarioIndiceAnoRank()
             arquivo.seekg(rrn);
             arquivo.read((char*)reg, sizeof(Registro));    
             
-            if(DEBUG )
+            
+            string ano, rank;
+            if(!WINDOWS)
             {
-                cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
-                cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
-                cout << ", reg->rank: " << reg->rank << endl;
+                ano = to_string(reg->anoNascimento);
+                rank = to_string(reg->rank);
             }
-            string ano = to_string(reg->anoNascimento);
-            string rank = to_string(reg->rank);
+            else
+            {
+                ano = "2000";
+                rank = "1";
+            }
+            
 
             string auxiliar = ano+rank;
             indice_anoRank->anoRank = stoi(auxiliar);
             indice_anoRank->rrn = rrn;
 
-            if(DEBUG)
-              cout << "id -> " << indice_anoRank->anoRank << " , rrn -> " << indice_anoRank->rrn << endl;
 
             indice.write((char*)indice_anoRank, sizeof(anoRank));
        }
@@ -273,7 +276,7 @@ void arquivos::printarArquivoBinario(int rrn)
     arquivo.close();
 }
 
-void arquivos::limpaArquivo()
+void arquivos::limparArquivo()
 {
    
     rename("arquivo.dat","buffer");
@@ -304,6 +307,24 @@ void arquivos::limpaArquivo()
     }
     arq1.close();
     arq2.close();
+}
+
+void arquivos::lerArquivoBinario()
+{
+    fstream arquivo;
+    arquivo.open("arquivo.dat", ios::in | ios::binary);
+    Cabecalho * cab = new Cabecalho();
+    Registro * reg = new Registro();
+    arquivo.read((char *) cab, sizeof(Cabecalho));
+    while(1)
+    {
+        arquivo.read((char *) reg, sizeof(Registro));
+        if(arquivo.eof()) break;
+        cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
+        cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
+        cout << ", reg->rank: " << reg->rank << endl;
+    }
+    arquivo.close();
 }
 /*
 ===================================
@@ -514,5 +535,7 @@ void BTreeNode::splitChild(int i, BTreeNode *y)
     // Increment count of keys in this node
     n = n + 1;
 }
+
+
 
 

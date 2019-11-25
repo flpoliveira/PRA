@@ -6,15 +6,15 @@
 
 using namespace std::chrono; 
 
-vector<registro> registros;
+vector<Registro> regs;
 
 int  buscaSequencial(int k, int indice)
 {
-	for(int i = 0; i < registros.size(); i++)
+	for(int i = 0; i < regs.size(); i++)
 	{
 		if(indice == IND_ID)
 		{
-			if(k == registros[i].id)
+			if(k == regs[i].id)
 			{
 				return i;
 			}
@@ -31,14 +31,14 @@ void menu()
 int main()
 {
 	arquivos arquivo;
-	int tamanho = 10000, grauMinimo = 3;
+	int tamanho = 30, grauMinimo = 3;
 	/*
-	cout << "Digite o numero de registros que deseja trabalhar:" <<endl;
+	cout << "Digite o numero de regs que deseja trabalhar:" <<endl;
 	cin >> tamanho;
 	cout << "Digte o grau minimo da Arvore B:" << endl;
 	cin >> grauMinimo;
 
-	//Caso o numero de registro seja superior a 10000 ou inferior a 0
+	//Caso o numero de Registro seja superior a 10000 ou inferior a 0
 	tamanho = tamanho > 10000 ? 10000 : tamanho;
 	tamanho = tamanho < 0 ? 0 : tamanho; 
 	
@@ -52,7 +52,10 @@ int main()
 
 	//Gerando os arquivos Binarios do CSV - ETAPA 1
 	arquivo.gerarBinario(tamanho);
-	arquivo.gerarBinarioIndiceId(tamanho);
+	arquivo.gerarBinarioIndiceId();
+
+
+
 
 	//Gerando a arvore B em memória principal
 	BTree p1(grauMinimo);
@@ -66,12 +69,14 @@ int main()
 		return 1;
 	}
 	indice.seekg(0, ios::beg);
-	for(int i = 0; i < tamanho ;i++)
+	
+	while(1)
 	{
+		
 		indice.read((char*)cn, sizeof(id));
-		//cout << cn->id << " - " << cn->rrn << endl;
+		if(indice.eof()) break;
+		cout << cn->id << " - " << cn->rrn << endl;
 		p1.insert(mp(cn->id, cn->rrn));
-		indice.seekg(sizeof(id)*(i+1));
 	}
 	indice.close();
 	fstream arq;
@@ -81,20 +86,19 @@ int main()
 		cout << "Erro ao abrir o arquivo.dat" << endl;
 		return 1;
 	}
-	arq.seekg(0, ios::beg);
-	for(int i  = 0; i < tamanho; i++)
+	arq.seekg(sizeof(Cabecalho));
+	while(!arq.eof())
 	{
-		registro * reg = new registro();
-		arq.read((char*) reg, sizeof(registro));
-		registros.pb(*reg);
-		arq.seekg(sizeof(registro)*(i+1));
+		Registro * reg = new Registro();
+		arq.read((char*) reg, sizeof(Registro));
+		regs.pb(*reg);
 	}
 	arq.close();
 	
 	
 	
 	auto start = high_resolution_clock::now(); 
-	int resultado = p1.search(7000);
+	int resultado = p1.search(11000);
 	
 	auto stop = high_resolution_clock::now(); 
 	
@@ -105,24 +109,25 @@ int main()
 	}
 	else
 		cout << "Não encontrado TreeB" << endl;
+
 	auto duration = duration_cast<nanoseconds>(stop - start); 
 	// To get the value of duration use the count() 
 	// member function on the duration object 
 	cout << duration.count() << endl; 
 	start = high_resolution_clock::now(); 
-	 resultado = buscaSequencial(7500, 1);
+	resultado = buscaSequencial(11000, 1);
 	stop = high_resolution_clock::now(); 
 
 	if(resultado != -1)
 	{
 		cout << "Encontrado na busca sequencial:" << endl;
-		cout << "\tID: " << registros[resultado].id << endl;
-		cout << "\tNome: " << registros[resultado].nome << endl;
-		cout << "\tAno de Nascimento: " << registros[resultado].anoNascimento << endl;
-		cout << "\tSexo: " << registros[resultado].sexo << endl;
-		cout << "\tEtnia: " << registros[resultado].etnia << endl;
-		cout << "\tContador: " << registros[resultado].contador << endl;
-		cout << "\tRank: " << registros[resultado].rank << endl;
+		cout << "\tID: " << regs[resultado].id << endl;
+		cout << "\tNome: " << regs[resultado].nome << endl;
+		cout << "\tAno de Nascimento: " << regs[resultado].anoNascimento << endl;
+		cout << "\tSexo: " << regs[resultado].sexo << endl;
+		cout << "\tEtnia: " << regs[resultado].etnia << endl;
+		cout << "\tContador: " << regs[resultado].contador << endl;
+		cout << "\tRank: " << regs[resultado].rank << endl;
 		
 	}
 	else
@@ -130,6 +135,6 @@ int main()
 
 	duration = duration_cast<nanoseconds>(stop - start);
 	cout << duration.count() << endl; 
-
+	
 	return 0;
 }

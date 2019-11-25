@@ -5,10 +5,10 @@ using namespace std;
 #define INDICE first
 #define POSICAO second
 #define mp make_pair
-#define DEBUG 0
+#define DEBUG 1
 
 
-typedef struct registro
+typedef struct Registro
 {
     int id;
     int anoNascimento;
@@ -17,7 +17,18 @@ typedef struct registro
     char nome[100];
     int contador;
     int rank;
-}registro;
+}Registro;
+
+typedef struct Cabecalho
+{
+	int topo;
+}Cabecalho;
+
+typedef struct Removido
+{
+	char caracter;
+	int proximoPilha;
+}Removido;
 
 typedef struct id
 {
@@ -31,8 +42,12 @@ class arquivos
 {
 	public:
     	void gerarBinario(int tamanho);
-		void gerarBinarioIndiceId(int tamanho);
+		void gerarBinarioIndiceId();
+		int  inserirArquivoBinario(Registro * reg);
 		void printarArquivoBinario(int rrn);
+		void inserirIndiceId(int rrn);
+		void removerArquivoBinario(int rrn);
+		void limpaArquivo();
 };
 
 

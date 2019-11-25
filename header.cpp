@@ -15,14 +15,21 @@ ARQUIVOS
 void arquivos::gerarBinario(int tamanho)
 {
 	fstream arquivo;
-	arquivo.open("arquivo.dat", ios::out | ios::app | ios::binary);
+	arquivo.open("arquivo.dat", ios::out | ios::trunc |ios::binary);
 	if(arquivo.fail())
 	{
 		cout << "Erro ao abrir o arquivo binario" << endl;
 		return;
 	}
 	FILE * file = fopen("Popular_Baby_Names.csv", "r");
-    registro* aux = new registro();
+
+    //Declaração do cabeçalho para remoção lógica
+    Cabecalho * cab = new Cabecalho();
+    cab->topo = -1;
+    arquivo.write((char *)cab, sizeof(Cabecalho));
+
+    Registro* aux = new Registro();
+
     int i=0;
     while (i<tamanho)
     {
@@ -35,14 +42,14 @@ void arquivos::gerarBinario(int tamanho)
             cout << ", aux->rank: " << aux->rank << endl;
         }
         
-		arquivo.write((char*)aux, sizeof(registro));
+		arquivo.write((char*)aux, sizeof(Registro));
         i++;
     }
     fclose(file);
     arquivo.close();
 }
 
-void arquivos::gerarBinarioIndiceId(int tamanho)
+void arquivos::gerarBinarioIndiceId()
 {
 	streampos rrn;
 	fstream arquivo;
@@ -53,42 +60,141 @@ void arquivos::gerarBinarioIndiceId(int tamanho)
 		return;
 	}
 	fstream indice;
-	indice.open("indice_id.dat", ios::out | ios::app | ios::binary);
+	indice.open("indice_id.dat", ios::out | ios::binary);
 	if(indice.fail() && DEBUG)
 	{
 		cout << "Erro ao abrir o arquivo de indice id";
 		return;
 	}
-	registro* reg = new registro();
+	Registro* reg = new Registro();
 	id* indice_id = new id();
-	arquivo.seekg(0, ios::beg);
-	for(int i = 0; i < tamanho ;i++)
-	{
-		rrn = arquivo.tellg();
-		arquivo.read((char*)reg, sizeof(registro));
-        if(DEBUG)
-        {
-            cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
-            cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
-            cout << ", reg->rank: " << reg->rank << endl;
-        }
-		
-		indice_id->id = reg->id;
-		indice_id->rrn = rrn;
+	arquivo.seekg(sizeof(Cabecalho));
+    
+    Removido * r = new Removido();
+	while(1)
+    {
+       rrn = arquivo.tellg();
+       arquivo.read((char *) r, sizeof(Removido));
+       if(arquivo.eof()) break;
+       if(r->caracter != '*')
+       {
 
-        if(DEBUG)
-		  cout << "id -> " << indice_id->id << " , rrn -> " << indice_id->rrn << endl;
+            arquivo.seekg(rrn);
+            arquivo.read((char*)reg, sizeof(Registro));    
+            
+            if(DEBUG )
+            {
+                cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
+                cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
+                cout << ", reg->rank: " << reg->rank << endl;
+            }
+            
+            indice_id->id = reg->id;
+            indice_id->rrn = rrn;
 
-		indice.write((char*)indice_id, sizeof(id));
-		arquivo.seekg(sizeof(registro)*(i+1));
-	}
+            if(DEBUG)
+              cout << "id -> " << indice_id->id << " , rrn -> " << indice_id->rrn << endl;
+
+            indice.write((char*)indice_id, sizeof(id));
+       }
+       else
+            arquivo.seekg(sizeof(Registro) + rrn);
+
+	  
+	} 
 	arquivo.close();
 	indice.close();
 }
+void arquivos::inserirIndiceId(int rrn)
+{
+    fstream arquivo, indice;
+    arquivo.open("arquivo.dat", ios::in |  ios::app | ios::binary);
+    indice.open("indice_id.dat", ios::app | ios::binary);
+    if(arquivo.fail() || indice.fail())
+    {
+        cout << "Erro ao abrir o arquivo na atualizacao do indice" << endl; 
+        return;
+    }
+    Registro * reg = new Registro();
+    arquivo.seekg(rrn);
+    arquivo.read((char *) reg, sizeof(Registro));
+    id * indice_id = new id();
+    indice_id->id = reg->id;
+    indice_id->rrn = rrn;
+    indice.write((char *) indice_id, sizeof(id));
+    arquivo.close();
+    indice.close();
 
+}
+int arquivos::inserirArquivoBinario(Registro * reg)
+{
+    streampos rrn;
+    fstream arquivo;
+    arquivo.open("arquivo.dat", ios::in |  ios::out | ios::binary);
+    Cabecalho * cab = new Cabecalho();
+
+    if(arquivo.fail() && DEBUG)
+    {
+        cout << "Erro ao abrir o arquivo na insercao do arquivo binario" << endl;
+        return -1;
+    }
+
+    arquivo.seekg(0, ios::beg);
+    arquivo.read((char *) cab, sizeof(Cabecalho));
+    
+    if(cab->topo == -1)
+    {
+        arquivo.seekg(0, ios_base::end);
+        rrn = arquivo.tellg();
+        arquivo.write((char *)reg, sizeof(Registro));
+
+    }
+    else
+    {
+        arquivo.seekg(cab->topo);
+        Removido * r = new Removido();
+        arquivo.read((char *) r, sizeof(Removido));
+        arquivo.seekp(cab->topo);
+        arquivo.write((char *) reg, sizeof(Registro));
+        cab->topo = r->proximoPilha;
+        arquivo.seekp(0, ios::beg);
+        arquivo.write((char *) cab, sizeof(Cabecalho));
+
+    }
+    
+    arquivo.close();
+    return rrn;
+}
+void arquivos::removerArquivoBinario(int rrn)
+{
+    fstream arquivo;
+    arquivo.open("arquivo.dat", ios::in | ios::out  | ios::binary);
+    if(arquivo.fail())
+    {
+        cout << "Erro ao abrir o arquivo na remocao do arquivo binario" <<endl;
+        return;
+    }
+    Cabecalho * cab = new Cabecalho();
+    arquivo.seekg(0, ios::beg);
+    arquivo.read((char *) cab, sizeof(Cabecalho));
+    
+    Removido * r = new Removido();
+    r->proximoPilha = cab->topo;
+    r->caracter = '*';
+    cab->topo = rrn;
+    
+    arquivo.seekp(0, ios::beg);
+    arquivo.write((char *) cab, sizeof(Cabecalho));
+
+    arquivo.seekp(rrn);
+    arquivo.write((char *) r, sizeof(Removido));
+
+    arquivo.close();
+
+}
 void arquivos::printarArquivoBinario(int rrn)
 {
-    registro * reg = new registro();
+    Registro * reg = new Registro();
     fstream arquivo;
     arquivo.open("arquivo.dat", ios::in | ios::binary);
     if(arquivo.fail() && DEBUG)
@@ -97,7 +203,7 @@ void arquivos::printarArquivoBinario(int rrn)
         return;
     }
     arquivo.seekg(rrn);
-    arquivo.read((char *)reg, sizeof(registro));
+    arquivo.read((char *)reg, sizeof(Registro));
     cout << "\tID: " << reg->id << endl;
     cout << "\tNome: " << reg->nome << endl;
     cout << "\tAno de Nascimento: " << reg->anoNascimento << endl;
@@ -106,6 +212,39 @@ void arquivos::printarArquivoBinario(int rrn)
     cout << "\tContador: " << reg->contador << endl;
     cout << "\tRank: " << reg->rank << endl;
     arquivo.close();
+}
+
+void arquivos::limpaArquivo()
+{
+   
+    rename("arquivo.dat","buffer");
+   
+    fstream arq1, arq2;
+    arq1.open("arquivo.dat", ios::out | ios::trunc | ios::binary);
+    arq2.open("buffer", ios::in | ios::binary);
+    Cabecalho * cab = new Cabecalho();
+    cab->topo = -1;
+    arq1.write((char *) cab, sizeof(Cabecalho));
+    arq2.seekg(sizeof(Cabecalho));
+    Registro * reg = new Registro();
+    Removido * rem = new Removido();
+    int rrn;
+    while(1)
+    {
+        rrn = arq1.tellg();
+        arq2.read((char *) rem, sizeof(Removido));
+        if(arq2.eof()) break;
+        if(rem->caracter != '*')
+        {
+            arq2.seekg(rrn);
+            arq2.read((char *) reg, sizeof(Registro));
+            arq1.write((char *) reg, sizeof(Registro));
+        }
+        else
+            arq2.seekg(rrn + sizeof(Registro));
+    }
+    arq1.close();
+    arq2.close();
 }
 /*
 ===================================

@@ -332,7 +332,6 @@ ARVORE B na Memoria Principal
 ==================================
 * Construtores das classes da arvore B
 * Busca e percorrer a arvore B de forma transversal
-* Código retirado do https://www.geeksforgeeks.org/introduction-of-b-tree-2/
 
 
 */

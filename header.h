@@ -1,6 +1,10 @@
 #ifndef HEADER_H // include guard
 #define HEADER_H
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <vector> 
+
 using namespace std;
 #define INDICE first
 #define POSICAO second
@@ -36,6 +40,12 @@ typedef struct id
 	long long rrn;
 }id;
 
+typedef struct anoRank
+{
+	int anoRank;
+	long long rrn;
+}anoRank;
+
 
 
 class arquivos
@@ -43,6 +53,7 @@ class arquivos
 	public:
     	void gerarBinario(int tamanho);
 		void gerarBinarioIndiceId();
+		void gerarBinarioIndiceAnoRank();
 		int  inserirArquivoBinario(Registro * reg);
 		void printarArquivoBinario(int rrn);
 		void inserirIndiceId(int rrn);

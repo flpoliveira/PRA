@@ -105,6 +105,65 @@ void arquivos::gerarBinarioIndiceId()
 	arquivo.close();
 	indice.close();
 }
+void arquivos::gerarBinarioIndiceAnoRank()
+{
+    streampos rrn;
+    fstream arquivo;
+    arquivo.open("arquivo.dat", ios::in | ios::binary);
+    if(arquivo.fail() && DEBUG)
+    {
+        cout << "Erro ao abrir o arquivo binario" << endl;
+        return;
+    }
+    fstream indice;
+    indice.open("indice_anoRank.dat", ios::out | ios::binary);
+    if(indice.fail() && DEBUG)
+    {
+        cout << "Erro ao abrir o arquivo de indice id";
+        return;
+    }
+    Registro* reg = new Registro();
+    anoRank* indice_anoRank = new anoRank();
+    arquivo.seekg(sizeof(Cabecalho));
+    
+    Removido * r = new Removido();
+    while(1)
+    {
+       rrn = arquivo.tellg();
+       arquivo.read((char *) r, sizeof(Removido));
+       if(arquivo.eof()) break;
+       if(r->caracter != '*')
+       {
+
+            arquivo.seekg(rrn);
+            arquivo.read((char*)reg, sizeof(Registro));    
+            
+            if(DEBUG )
+            {
+                cout << "reg->id: " << reg->id << ", reg->anoNascimento: " << reg->anoNascimento << ", reg->sexo: " << reg->sexo;
+                cout << ", reg->etnia: " << reg->etnia << ", reg->nome: " << reg->nome << ", reg->contador: " << reg->contador;
+                cout << ", reg->rank: " << reg->rank << endl;
+            }
+            string ano = to_string(reg->anoNascimento);
+            string rank = to_string(reg->rank);
+
+            string auxiliar = ano+rank;
+            indice_anoRank->anoRank = stoi(auxiliar);
+            indice_anoRank->rrn = rrn;
+
+            if(DEBUG)
+              cout << "id -> " << indice_anoRank->anoRank << " , rrn -> " << indice_anoRank->rrn << endl;
+
+            indice.write((char*)indice_anoRank, sizeof(anoRank));
+       }
+       else
+            arquivo.seekg(sizeof(Registro) + rrn);
+
+      
+    } 
+    arquivo.close();
+    indice.close();
+}
 void arquivos::inserirIndiceId(int rrn)
 {
     fstream arquivo, indice;

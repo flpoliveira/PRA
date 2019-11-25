@@ -26,14 +26,15 @@ void menu()
 {
 	cout << "============== MENU ==============" << endl;
 	cout << "1 - Busca por ID" << endl;
+
 	cout << "0 - Sair " << endl;
 }
 int main()
 {
 	arquivos arquivo;
 	int tamanho = 30, grauMinimo = 3;
-	/*
-	cout << "Digite o numero de regs que deseja trabalhar:" <<endl;
+	
+	/*cout << "Digite o numero de regs que deseja trabalhar:" <<endl;
 	cin >> tamanho;
 	cout << "Digte o grau minimo da Arvore B:" << endl;
 	cin >> grauMinimo;
@@ -44,25 +45,29 @@ int main()
 	
 	//Caso o numero do grau minimo seja menor que 0
 	grauMinimo = grauMinimo < 0 ? 0 : grauMinimo;
-	
-	*/
 
+	
+	
+*/
 
 	
 
 	//Gerando os arquivos Binarios do CSV - ETAPA 1
 	arquivo.gerarBinario(tamanho);
 	arquivo.gerarBinarioIndiceId();
+	arquivo.gerarBinarioIndiceAnoRank();
 
 
 
 
 	//Gerando a arvore B em memória principal
 	BTree p1(grauMinimo);
-
-	fstream indice;
+	BTree p2(grauMinimo);
+	fstream indice, indice2;
 	indice.open("indice_id.dat", ios::in | ios::binary);
-	id * cn = new id();
+	indice2.open("indice_anoRank.dat", ios::in | ios::binary);
+	id * auxId = new id();
+	anoRank * auxAnoRank = new anoRank();
 	if(indice.fail())
 	{
 		cout << "Erro ao abrir o arquivo de indice id";
@@ -73,12 +78,20 @@ int main()
 	while(1)
 	{
 		
-		indice.read((char*)cn, sizeof(id));
+		indice.read((char*)auxId, sizeof(id));
 		if(indice.eof()) break;
-		cout << cn->id << " - " << cn->rrn << endl;
-		p1.insert(mp(cn->id, cn->rrn));
+		cout << auxId->id << " - " << auxId->rrn << endl;
+		p1.insert(mp(auxId->id, auxId->rrn));
+	}
+	while(1)
+	{
+		indice2.read((char *)auxAnoRank, sizeof(anoRank));
+		if(indice2.eof()) break;
+		cout << auxAnoRank->anoRank << ", " << auxAnoRank->rrn << endl;
+		p2.insert(mp(auxAnoRank->anoRank, auxAnoRank->rrn));
 	}
 	indice.close();
+	indice2.close();
 	fstream arq;
 	arq.open("arquivo.dat", ios::in | ios::binary);
 	if(arq.fail())

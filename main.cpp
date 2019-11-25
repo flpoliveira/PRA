@@ -1,13 +1,13 @@
 #include "header.h"
 
-#include <chrono> 
+#include <chrono>
 #define pb push_back
-#define MAX 30
+#define MAX 10000
 #define IND_ID 1
 #define IND_ANO_RANK 2
 #define GRAUMINIMO 3
 
-using namespace std::chrono; 
+using namespace std::chrono;
 
 vector<Registro> regs;
 
@@ -48,10 +48,10 @@ int main()
 	arquivos arquivo;
 	//ETAPA 1 , GERACAO DO ARQUIVO BINARIO
 	arquivo.gerarBinario(MAX);
-	
+
 
 	//Menu
-	
+
 	int opcao = -1;
 	while(opcao != 0)
 	{
@@ -126,7 +126,7 @@ int main()
 				id * auxId = new id();
 				while(1)
 				{
-					
+
 					indice.read((char*)auxId, sizeof(id));
 					if(indice.eof()) break;
 					p1.insert(mp(auxId->id, auxId->rrn));
@@ -136,12 +136,12 @@ int main()
 				cout << "Digite o id que deseja buscar:"<<endl;
 				cin >> id;
 
-			
-				auto start = high_resolution_clock::now(); 
+
+				auto start = high_resolution_clock::now();
 				int resultado = p1.search(id);
-				
-				auto stop = high_resolution_clock::now(); 
-				
+
+				auto stop = high_resolution_clock::now();
+
 				if(resultado != -1)
 				{
 					cout << "Encontrado na TreeB" << endl;
@@ -150,13 +150,13 @@ int main()
 				else
 					cout << "Nao encontrado na TreeB" << endl;
 
-				auto duration = duration_cast<nanoseconds>(stop - start); 
-				// To get the value of duration use the count() 
-				// member function on the duration object 
-				cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl; 
-				start = high_resolution_clock::now(); 
+				auto duration = duration_cast<nanoseconds>(stop - start);
+				// To get the value of duration use the count()
+				// member function on the duration object
+				cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl;
+				start = high_resolution_clock::now();
 				resultado = buscaSequencial(id, IND_ID);
-				stop = high_resolution_clock::now(); 
+				stop = high_resolution_clock::now();
 
 				if(resultado != -1)
 				{
@@ -168,13 +168,13 @@ int main()
 					cout << "\tEtnia: " << regs[resultado].etnia << endl;
 					cout << "\tContador: " << regs[resultado].contador << endl;
 					cout << "\tRank: " << regs[resultado].rank << endl;
-					
+
 				}
 				else
 					cout << "Nao encontrado na busca sequencial" << endl;
 
 				duration = duration_cast<nanoseconds>(stop - start);
-				cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl; 
+				cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl;
 
 			}
 			if(opcao == 5)
@@ -191,7 +191,7 @@ int main()
 				anoRank * auxAnoRank = new anoRank();
 				while(1)
 				{
-					
+
 					indice.read((char*)auxAnoRank, sizeof(anoRank));
 					if(indice.eof()) break;
 					p1.insert(mp(auxAnoRank->anoRank, auxAnoRank->rrn));
@@ -209,11 +209,11 @@ int main()
 					auxiliar = to_string(ano) + to_string(ranking);
 					int anoRanking = stoi(auxiliar);
 
-					auto start = high_resolution_clock::now(); 
+					auto start = high_resolution_clock::now();
 					int resultado = p1.search(anoRanking);
-					
-					auto stop = high_resolution_clock::now(); 
-					
+
+					auto stop = high_resolution_clock::now();
+
 					if(resultado != -1)
 					{
 						cout << "Encontrado na TreeB" << endl;
@@ -221,12 +221,12 @@ int main()
 					}
 					else
 						cout << "Nao encontrado na TreeB" << endl;
-					auto duration = duration_cast<nanoseconds>(stop - start); 
-					cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl; 
+					auto duration = duration_cast<nanoseconds>(stop - start);
+					cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl;
 
-					start = high_resolution_clock::now(); 
+					start = high_resolution_clock::now();
 					resultado = buscaSequencial(anoRanking, IND_ANO_RANK);
-					stop = high_resolution_clock::now(); 
+					stop = high_resolution_clock::now();
 
 					if(resultado != -1)
 					{
@@ -238,23 +238,23 @@ int main()
 						cout << "\tEtnia: " << regs[resultado].etnia << endl;
 						cout << "\tContador: " << regs[resultado].contador << endl;
 						cout << "\tRank: " << regs[resultado].rank << endl;
-						
+
 					}
 					else
 						cout << "Nao encontrado na busca sequencial" << endl;
 
 					duration = duration_cast<nanoseconds>(stop - start);
-					cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl; 
-				}	
+					cout << "Tempo de busca: "<< duration.count()<<" nanosegundos." << endl;
+				}
 
 			}
 		}
 
 	}
 
-	
-	
-	
+
+
+
 
 
 

@@ -3,14 +3,14 @@
 #include <iostream>
 #include <string.h>
 #include <fstream>
-#include <vector> 
+#include <vector>
 
 using namespace std;
 #define INDICE first
 #define POSICAO second
 #define mp make_pair
 #define DEBUG 0
-#define WINDOWS 1
+#define WINDOWS 0
 
 
 typedef struct Registro
@@ -119,4 +119,3 @@ class BTree
 
 
 #endif /* MY_CLASS_H */
-
